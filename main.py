@@ -2,61 +2,59 @@
 import csv
 import os
 # Set the path for the CSV file csvpath
-csvpath = os.path.join("Resources","budget_data.csv")
-# Create the lists,dictionaries and  variables as required to store data.
-no_of_months = 0
-greatest_increase = {"date": '',"net_change":0}
-greatest_decrease = {"date": '',"net_change":9999999}
-average = []
-average_change = 0
-net_total = 0
+csvpath = os.path.join("Resources","election_data.csv")
+# Create the lists , dictionaries and variables as required to store data.
+total_votes = 0
+candidate_list = []
+candidate_votes = {}
+winning_votes = 0
 # Open the CSV using the set path csvpath
-with open(csvpath) as budgetfile:
-    reader = csv.reader(budgetfile,delimiter=",")
+with open(csvpath) as electionfile:
+    reader = csv.reader(electionfile,delimiter=",")
     header = next(reader)
-    first_row = next(reader)
-    no_of_months +=1
-    net_total = net_total + int(first_row[1])
-    # Initializing the 1st row to previous row 
-    prv_row = int(first_row[1])
     for row in reader:
-        # Calculate the no of months
-        no_of_months +=1
-        # Calculate the net total
-        net_total = net_total + int(row[1])
-        # Calculate the net change
-        net_change = int(row[1]) - prv_row
-        # Append the net change to average list for finding min and max profits
-        average.append(net_change)
-        # Resetting the previous row for initial value
-        prv_row = int(row[1])
-        # Find the max and min change in profits and the corresponding dates
-        if net_change > greatest_increase["net_change"]:
-            greatest_increase["date"] = row[0]
-            greatest_increase["net_change"] = net_change
-        if net_change < greatest_decrease["net_change"]:    
-            greatest_decrease["date"] = row[0]
-            greatest_decrease["net_change"] = net_change
-    # Calculate the average change in profits        
-    average_change =  sum(average)/len(average)
-# Putting the result into output variable for printing on terminal    
-output = (         
-        "Financial Analysis \n"
-        "-------------------------\n"
-        "Total Months: " + str(no_of_months) + "\n"
-        "Total Profits: " + "$" + str(net_total) + "\n"
-        f"Average Change: ${average_change:.2f}\n" 
-        f"Greatest Increase in Profits: {greatest_increase['date']} (${greatest_increase['net_change']})\n"
-        f"Greatest Decrease in Profits: {greatest_decrease['date']} (${greatest_decrease['net_change']})\n"
-        )   
-print(output)
-# Writing the output onto the budget analysis test file
-with open('budget_analysis.txt', 'w') as outputfile:
+        # This is the total votes cast
+        total_votes +=1
+        name = row[2]
+        # cheking and appending then candidate names to candidate list and getting the vote count
+        if name not in candidate_list:
+            candidate_list.append(name)
+            candidate_votes[name] = 0
+        candidate_votes[name]+=1
+# writing to output file and terminal          
+with open('election_analysis.txt', 'w') as outputfile:
+    output = (
+                "Election Results    \n"
+                "---------------------------\n"
+                f"Total Votes:  {str(total_votes)}\n" 
+                "---------------------------\n"
+             )    
+    print(output)
     outputfile.write(output)
+    # calculating total no of votes for each candidate and their percentage
+    for candidate_name in candidate_votes:
+        x = candidate_votes[candidate_name]
+        # to get the float value for percentage
+        p = float(x)/float(total_votes)*100
+        candidate_output = f"{candidate_name}: {p:.3f}% ({x})\n"
+        outputfile.write(candidate_output)
+        print(candidate_output)
+        if x > winning_votes:
+            winning_votes = x
+            winning_candidate = candidate_name
+    winner_output = ( "---------------------------\n"
+                      f"Winner: {winning_candidate}\n"  
+                      "---------------------------\n") 
+    print(winner_output) 
+    outputfile.write(winner_output)                   
 
+     
+      
 
-
-   
-
+        
+            
+            
+            
 
     
+
